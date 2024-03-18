@@ -5,5 +5,5 @@ export class UsersResponse {
   email: string;
   avatar: string;
   isActive: boolean;
-  task: Tasks[];
+  tasks: Tasks[];
 }
