@@ -6,17 +6,14 @@ import {
   Param,
   Post,
   Put,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { GetUserDto } from './dto/request/get-user.dto';
 import { CreateNewUserDto } from './dto/request/create-new-user.dto';
 import { UsersResponse } from './dto/response/user-response.dto';
 import { UpdateUserDto } from './dto/request/update-user.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { OwnerGuard } from './guards/owner.guard';
-import { Request } from 'express';
 import { UserIdDto } from './dto/request/user-id.dto';
 
 @Controller('users')
@@ -30,23 +27,23 @@ export class UsersController {
     return await this.usersService.createUser(createNewUserDto);
   }
 
-  @Get(':userId')
-  async getUserById(@Param() getUserDto: GetUserDto): Promise<UsersResponse> {
-    return await this.usersService.findUserById(getUserDto.userId);
+  @Get(':id')
+  async getUserById(@Param() { id }: UserIdDto): Promise<UsersResponse> {
+    return await this.usersService.findUserById(id);
   }
 
   @UseGuards(JwtAuthGuard, OwnerGuard)
-  @Put(':_id')
+  @Put(':id')
   async updateUser(
     @Body() updateUserDto: UpdateUserDto,
-    @Param() params: UserIdDto,
+    @Param() { id }: UserIdDto,
   ) {
-    return this.usersService.updateUser(params._id, updateUserDto);
+    return this.usersService.updateUser(id, updateUserDto);
   }
 
   @UseGuards(JwtAuthGuard, OwnerGuard)
-  @Delete(':_id')
-  async deleteUser(@Param() params: UserIdDto) {
-    return this.usersService.softDeleteUser(params._id);
+  @Delete(':id')
+  async deleteUser(@Param() { id }: UserIdDto) {
+    return this.usersService.softDeleteUser(id);
   }
 }
