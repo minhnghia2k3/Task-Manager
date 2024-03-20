@@ -3,11 +3,15 @@ import {
   Controller,
   Delete,
   Get,
+  HttpStatus,
   Param,
+  ParseFilePipeBuilder,
   Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Tasks } from './schemas/tasks.schema';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
@@ -20,6 +24,8 @@ import { UserActiveGuard } from 'src/users/guards/user_active.guard';
 import { ParamsDto } from './dto/request/params.dto';
 import { UpdateTaskDto } from './dto/request/update-task-dto';
 import { ApiParam } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { multerOptions } from './multer-options';
 
 @Controller('tasks')
 export class TasksController {
@@ -50,13 +56,18 @@ export class TasksController {
 
   @UseGuards(JwtAuthGuard, UserActiveGuard)
   @Post()
+  @UseInterceptors(FileInterceptor('image', multerOptions))
   async createTask(
     @CurrentUser() user: UsersResponse,
     @Body() createTaskDto: CreateTaskDto,
+    @UploadedFile()
+    image: Express.Multer.File,
   ): Promise<Tasks> {
+    createTaskDto.image = image?.filename;
     return await this.tasksService.createTask(user._id, createTaskDto);
   }
 
+  // TODO: handle remove old image when update task
   @UseGuards(JwtAuthGuard, UserActiveGuard)
   @Put(':task_id')
   @ApiParam({
