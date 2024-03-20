@@ -19,6 +19,7 @@ import { CreateTaskDto } from './dto/request/create-task-dto';
 import { UserActiveGuard } from 'src/users/guards/user_active.guard';
 import { ParamsDto } from './dto/request/params.dto';
 import { UpdateTaskDto } from './dto/request/update-task-dto';
+import { ApiParam } from '@nestjs/swagger';
 
 @Controller('tasks')
 export class TasksController {
@@ -35,6 +36,11 @@ export class TasksController {
 
   @UseGuards(JwtAuthGuard, UserActiveGuard)
   @Get(':task_id')
+  @ApiParam({
+    name: 'task_id',
+    required: true,
+    description: 'Identify task id.',
+  })
   async getTask(
     @CurrentUser() user: UsersResponse,
     @Param() paramsDto: ParamsDto,
@@ -53,6 +59,11 @@ export class TasksController {
 
   @UseGuards(JwtAuthGuard, UserActiveGuard)
   @Put(':task_id')
+  @ApiParam({
+    name: 'task_id',
+    required: true,
+    description: 'Identify task id.',
+  })
   async updateTask(
     @CurrentUser() user: UsersResponse,
     @Param() { task_id }: ParamsDto,
@@ -62,6 +73,11 @@ export class TasksController {
   }
   @UseGuards(JwtAuthGuard, UserActiveGuard)
   @Delete(':task_id')
+  @ApiParam({
+    name: 'task_id',
+    required: true,
+    description: 'Identify task id.',
+  })
   async cancelTask(
     @CurrentUser() user: UsersResponse,
     @Param() { task_id }: ParamsDto,
