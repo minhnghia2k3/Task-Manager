@@ -2,19 +2,19 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { Users } from 'src/users/schemas/users.schema';
 
-enum Priority {
-  cancel = 'Cancel',
-  pending = 'Pending',
-  done = 'Done',
+export enum Priority {
+  low = 0,
+  normal = 1,
+  urgency = 2,
 }
 
-enum Status {
-  low = 'Low',
-  normal = 'Normal',
-  urgency = 'Urgency',
+export enum Status {
+  cancel = 0,
+  pending = 1,
+  done = 2,
 }
 
-@Schema()
+@Schema({ timestamps: true })
 export class Tasks extends Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Users' })
   author: Users;
@@ -28,10 +28,16 @@ export class Tasks extends Document {
   @Prop()
   description?: string;
 
-  @Prop({ default: Priority.pending })
+  @Prop({
+    default: Priority.low,
+    enum: [Priority.low, Priority.normal, Priority.urgency],
+  })
   priority: Priority;
 
-  @Prop({ default: Status.low })
+  @Prop({
+    default: Status.pending,
+    enum: [Status.cancel, Status.pending, Status.done],
+  })
   status: Status;
 }
 

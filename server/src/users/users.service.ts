@@ -99,6 +99,7 @@ export class UsersService {
    */
   async softDeleteUser(userId: string): Promise<UsersResponse> {
     const deletedUser = await this.usersRepository.deleteUser(userId);
+    console.log('deletedUser: ', deletedUser);
     if (!deletedUser) {
       throw new NotFoundException('User not found by id.');
     }
