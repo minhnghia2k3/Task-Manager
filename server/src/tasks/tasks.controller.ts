@@ -67,9 +67,9 @@ export class TasksController {
     return await this.tasksService.createTask(user._id, createTaskDto);
   }
 
-  // TODO: handle remove old image when update task
   @UseGuards(JwtAuthGuard, UserActiveGuard)
   @Put(':task_id')
+  @UseInterceptors(FileInterceptor('image', multerOptions))
   @ApiParam({
     name: 'task_id',
     required: true,
@@ -79,7 +79,9 @@ export class TasksController {
     @CurrentUser() user: UsersResponse,
     @Param() { task_id }: ParamsDto,
     @Body() updateTaskDto: UpdateTaskDto,
+    @UploadedFile() image: Express.Multer.File,
   ): Promise<Tasks> {
+    updateTaskDto.image = image?.filename;
     return await this.tasksService.updateTask(user._id, task_id, updateTaskDto);
   }
   @UseGuards(JwtAuthGuard, UserActiveGuard)

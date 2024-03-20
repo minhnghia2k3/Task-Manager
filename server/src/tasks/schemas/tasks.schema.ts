@@ -16,7 +16,7 @@ export enum Status {
 
 @Schema({ timestamps: true })
 export class Tasks extends Document {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Users' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Users', index: true })
   author: Users;
 
   @Prop({ required: true })
@@ -31,12 +31,14 @@ export class Tasks extends Document {
   @Prop({
     default: Priority.low,
     enum: [Priority.low, Priority.normal, Priority.urgency],
+    index: true,
   })
   priority: Priority;
 
   @Prop({
     default: Status.pending,
     enum: [Status.cancel, Status.pending, Status.done],
+    index: true,
   })
   status: Status;
 }

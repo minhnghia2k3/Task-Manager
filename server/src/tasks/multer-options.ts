@@ -4,7 +4,7 @@ import { extname } from 'path';
 
 export const multerOptions = {
   limits: {
-    fileSize: 50000,
+    fileSize: 1000000, // 1000kb = 1mb
   },
   // Check the mimetypes to allow for upload
   fileFilter: (req: any, file: any, cb: any) => {

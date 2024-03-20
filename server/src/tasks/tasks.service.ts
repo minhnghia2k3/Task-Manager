@@ -5,7 +5,7 @@ import { Tasks } from './schemas/tasks.schema';
 import { CreateTaskDto } from './dto/request/create-task-dto';
 import { ListTasksResponse } from './dto/response/list-tasks-response.dto';
 import { UpdateTaskDto } from './dto/request/update-task-dto';
-import { join } from 'path';
+import { PathLike, unlink } from 'node:fs';
 
 @Injectable()
 export class TasksService {
@@ -41,7 +41,7 @@ export class TasksService {
     const filteredFilterOptions = this.removeUndefinedFromObject(filterOptions);
 
     const list = await this.tasksRepository.listTasks(
-      { ...filteredFilterOptions, author: userId, status: { $ne: 0 } },
+      { author: userId, status: { $ne: 0 }, ...filteredFilterOptions },
       {
         ...queryOptions,
         page: skipUnit,
@@ -89,6 +89,14 @@ export class TasksService {
     taskId: string,
     updateTaskDto: UpdateTaskDto,
   ): Promise<Tasks> {
+    if (updateTaskDto.image) {
+      const currentTask = await this.tasksRepository.findOne(userId, taskId);
+      if (currentTask.image) {
+        const imagePath = `uploads/tasks/${currentTask.image}`;
+        this.removeImage(imagePath);
+      }
+    }
+
     const task = await this.tasksRepository.updateTask(
       userId,
       taskId,
@@ -146,5 +154,12 @@ export class TasksService {
       },
       data: [...list],
     };
+  }
+
+  private removeImage(path: PathLike): void {
+    unlink(path, (err) => {
+      if (err) throw err;
+      console.log(`${path} was deleted`);
+    });
   }
 }
