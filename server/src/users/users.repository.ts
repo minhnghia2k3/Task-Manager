@@ -24,15 +24,12 @@ export class UsersRepository {
     userId: string,
     updateUserDto: UpdateUserDto,
   ): Promise<Users> {
-    return await this.usersModel.findOneAndUpdate(
-      { _id: userId },
-      updateUserDto,
-      { new: true },
-    );
+    const user = await this.usersModel.findById(userId);
+    user.password = updateUserDto.password;
+    return await user.save();
   }
 
   async deleteUser(userId: string): Promise<Users> {
-    console.log('userId: ', userId);
     return this.usersModel.findByIdAndUpdate(
       userId,
       { isActive: 0 },

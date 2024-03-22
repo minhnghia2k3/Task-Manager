@@ -16,13 +16,14 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { OwnerGuard } from './guards/owner.guard';
 import { UserIdDto } from './dto/request/user-id.dto';
 import { ApiParam } from '@nestjs/swagger';
+import { UserActiveGuard } from './guards/user_active.guard';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  async createNewUser(
+  public async createNewUser(
     @Body() createNewUserDto: CreateNewUserDto,
   ): Promise<UsersResponse> {
     return await this.usersService.createUser(createNewUserDto);
@@ -34,32 +35,34 @@ export class UsersController {
     required: true,
     description: 'User object id.',
   })
-  async getUserById(@Param() { id }: UserIdDto): Promise<UsersResponse> {
+  public async getUserById(@Param() { id }: UserIdDto): Promise<UsersResponse> {
     return await this.usersService.findUserById(id);
   }
 
-  @UseGuards(JwtAuthGuard, OwnerGuard)
+  /** Protected route */
+  @UseGuards(JwtAuthGuard, OwnerGuard, UserActiveGuard)
   @Put(':id')
   @ApiParam({
     name: 'id',
     required: true,
     description: 'User object id.',
   })
-  async updateUser(
+  protected async updateUser(
     @Body() updateUserDto: UpdateUserDto,
     @Param() { id }: UserIdDto,
   ) {
     return this.usersService.updateUser(id, updateUserDto);
   }
 
-  @UseGuards(JwtAuthGuard, OwnerGuard)
+  /** Protected route */
+  @UseGuards(JwtAuthGuard, OwnerGuard, UserActiveGuard)
   @Delete(':id')
   @ApiParam({
     name: 'id',
     required: true,
     description: 'User object id.',
   })
-  async deleteUser(@Param() { id }: UserIdDto) {
+  protected async deleteUser(@Param() { id }: UserIdDto) {
     return this.usersService.softDeleteUser(id);
   }
 }

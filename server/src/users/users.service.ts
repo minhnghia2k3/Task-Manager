@@ -24,8 +24,6 @@ export class UsersService {
       _id: user._id.toHexString(),
       email: user.email,
       isActive: user.isActive,
-      avatar: user.avatar,
-      tasks: user.tasks,
     };
   }
 
@@ -60,12 +58,8 @@ export class UsersService {
    */
   async createUser(createNewUserDto: CreateNewUserDto): Promise<UsersResponse> {
     await this.validateCreateUser(createNewUserDto.email);
-    const hashPassword = await bcrypt.hash(createNewUserDto.password, 10);
 
-    const newUser = await this.usersRepository.createUser({
-      ...createNewUserDto,
-      password: hashPassword,
-    });
+    const newUser = await this.usersRepository.createUser(createNewUserDto);
 
     return this.builtResponse(newUser);
   }
@@ -99,7 +93,6 @@ export class UsersService {
    */
   async softDeleteUser(userId: string): Promise<UsersResponse> {
     const deletedUser = await this.usersRepository.deleteUser(userId);
-    console.log('deletedUser: ', deletedUser);
     if (!deletedUser) {
       throw new NotFoundException('User not found by id.');
     }

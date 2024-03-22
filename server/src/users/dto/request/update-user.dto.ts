@@ -1,12 +1,7 @@
-import { IsArray, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsStrongPassword } from 'class-validator';
 
 export class UpdateUserDto {
   @IsOptional()
-  @IsString()
-  avatar?: string;
-
-  @IsOptional()
-  @IsArray()
-  @IsString()
-  tasks?: string[];
+  @IsStrongPassword()
+  password: string;
 }
