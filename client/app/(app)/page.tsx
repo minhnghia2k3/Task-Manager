@@ -1,55 +1,133 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/7Cf1Rdk2YTC
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
+"use client";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardFooter, Card } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import clsx from "clsx";
+
+export interface ITasks {
+  _id: string;
+  author: string;
+  title: string;
+  image: string;
+  description: string;
+  priority: number;
+  status: number;
+}
+export interface IPagination {
+  currentPage: number;
+  totalPage: number;
+  unit: number;
+}
+
+export enum Priority {
+  Low = 0,
+  Normal = 1,
+  Urgency = 2,
+}
+
+export enum Status {
+  Cancel = 0,
+  Pending = 1,
+  Done = 2,
+}
 
 export default function Component() {
-  return (
-    <div className="grid gap-4">
-      <div className="grid gap-1">
-        <h1 className="font-semibold text-xl">Tasks</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Here are your tasks for the day
-        </p>
+  const router = useRouter();
+  const [tasks, setTasks] = useState<ITasks[]>([]);
+  const [pagination, setPagination] = useState<IPagination>();
+  // Fetch all users task
+  useEffect(() => {
+    const fetchAllTasks = async () => {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER}/tasks?page=1&limit=10`,
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
+      const result = await response.json();
+      if (result.statusCode === 401) {
+        router.push("/login");
+      }
+      if (result.statusCode === 403) {
+        router.push("/banned");
+      }
+
+      setTasks(result.data);
+      setPagination(result.info);
+
+      return result;
+    };
+    fetchAllTasks();
+  }, []);
+  if (tasks && tasks.length > 0) {
+    return (
+      <div className="grid gap-4">
+        <div className="grid gap-1">
+          <h1 className="font-semibold text-xl">Tasks</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Here are your tasks for the day
+          </p>
+        </div>
+        {tasks &&
+          tasks.length > 0 &&
+          tasks.map((task, index) => (
+            <Card
+              key={index}
+              id={task._id}
+              className={clsx({
+                "border-ring": task.priority === Priority.Normal,
+                "border-destructive border-2":
+                  task.priority === Priority.Urgency,
+              })}
+            >
+              <CardContent className="p-4">
+                <div className="grid gap-2">
+                  <div className="flex items-center gap-2">
+                    <CheckIcon className="h-4 w-4" />
+                    <h2 className="font-semibold text-sm">{task.title}</h2>
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {task.description}
+                  </p>
+                </div>
+              </CardContent>
+              <CardFooter>
+                <div className="flex items-center gap-2">
+                  <div
+                    className={clsx("flex gap-2 text-sm items-center", {
+                      "text-gray-500 dark:text-gray-400":
+                        task.priority === Priority.Low,
+                      "text-ring dark:text-ring":
+                        task.priority === Priority.Normal,
+                      "text-destructive dark:text-destructive  font-semibold":
+                        task.priority === Priority.Urgency,
+                    })}
+                  >
+                    <KeyIcon className="h-4 w-4" />
+                    <span>Priority:</span>
+                    <span>{Priority[task.priority]}</span>
+                  </div>
+                  <div className="ml-auto flex items-center gap-2">
+                    <Button size="sm" variant="ghost">
+                      <PencilIcon className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="ghost">
+                      <TrashIcon className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="ghost">
+                      <InfoIcon className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardFooter>
+            </Card>
+          ))}
       </div>
-      <Card className="">
-        <CardContent className="p-4">
-          <div className="grid gap-2">
-            <div className="flex items-center gap-2">
-              <CheckIcon className="h-4 w-4 text-primary dark:text-primary" />
-              <h2 className="font-semibold text-sm">Standup with the team</h2>
-            </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Discuss the progress made yesterday and plan for the day ahead
-            </p>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <div className="flex items-center gap-2">
-            <KeyIcon className="h-4 w-4 text-destructive dark:text-destructive" />
-            <span className="text-sm text-destructive dark:text-destructive">
-              Priority:
-            </span>
-            <span className="text-sm text-destructive font-bold">High</span>
-            <div className="ml-auto flex items-center gap-2">
-              <Button size="sm" variant="ghost">
-                <PencilIcon className="h-4 w-4" />
-              </Button>
-              <Button size="sm" variant="ghost">
-                <TrashIcon className="h-4 w-4" />
-              </Button>
-              <Button size="sm" variant="ghost">
-                <InfoIcon className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </CardFooter>
-      </Card>
-    </div>
-  );
+    );
+  }
+  return <p>Loading...</p>;
 }
 
 function CheckIcon(props: any) {
