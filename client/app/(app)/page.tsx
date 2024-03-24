@@ -5,6 +5,20 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+
+import { CreateTaskForm } from "@/components/CreateTaskForm";
 export interface ITasks {
   _id: string;
   author: string;
@@ -36,6 +50,7 @@ export default function Component() {
   const router = useRouter();
   const [tasks, setTasks] = useState<ITasks[]>([]);
   const [pagination, setPagination] = useState<IPagination>();
+
   // Fetch all users task
   useEffect(() => {
     const fetchAllTasks = async () => {
@@ -66,9 +81,22 @@ export default function Component() {
       <div className="grid gap-4">
         <div className="grid gap-1">
           <h1 className="font-semibold text-xl">Tasks</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Here are your tasks for the day
-          </p>
+          <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+            <p className="mr-8">Here are your tasks for the day</p>
+            <Dialog>
+              <DialogTrigger className="h-10 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+                Add task
+              </DialogTrigger>
+              <DialogContent className="space-y-4">
+                <DialogHeader>
+                  <DialogTitle>Add a new task</DialogTitle>
+                  <DialogDescription>
+                    <CreateTaskForm />
+                  </DialogDescription>
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
         {tasks &&
           tasks.length > 0 &&
@@ -127,7 +155,24 @@ export default function Component() {
       </div>
     );
   }
-  return <p>Loading...</p>;
+  return (
+    <div className="flex items-center flex-col gap-4">
+      <p className="text-center mt-4">No tasks was found...</p>
+      <Dialog>
+        <DialogTrigger className="h-10 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+          Add task
+        </DialogTrigger>
+        <DialogContent className="space-y-4">
+          <DialogHeader>
+            <DialogTitle>Add a new task</DialogTitle>
+            <DialogDescription>
+              <CreateTaskForm />
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }
 
 function CheckIcon(props: any) {
